@@ -240,8 +240,13 @@ public class RNSendIntentModule extends ReactContextBaseJavaModule {
             intent.putExtra(Intent.EXTRA_TEXT, options.getString("text"));
         }
 
-        if (options.hasKey("imageUrl")) {
-            Uri uri = Uri.parse(options.getString("imageUrl"));
+        if (options.hasKey("fileUri") && options.hasKey("mimeType")) {
+            Uri uri = Uri.parse(options.getString("fileUri"));
+            String mimeType = Uri.parse(options.getString("mimeType"));
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.setType(mimeType);
+        } else if(options.hasKey("imageUri")) {
+            Uri uri = Uri.parse(options.getString("imageUri"));
             intent.putExtra(Intent.EXTRA_STREAM, uri);
             intent.setType("image/*");
         } else {
@@ -252,6 +257,9 @@ public class RNSendIntentModule extends ReactContextBaseJavaModule {
 
         Activity currentActivity = getCurrentActivity();
         if (currentActivity != null) {
+            if(StringUtils.isEmpty(title) && options.hasKey("title")) {
+                title = Uri.parse(options.getString("title"));
+            }
             currentActivity.startActivity(Intent.createChooser(intent, title));
         }
     }
